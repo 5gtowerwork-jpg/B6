@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#c0392b"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="BIRIYANI 6"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>BIRIYANI 6 POS</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --red:#c0392b;--red-dark:#96281b;--gold:#f39c12;--gold-light:#f1c40f;
+  --green:#27ae60;--bg:#f5f0eb;--surface:#fff;--surface2:#fdf8f5;
+  --border:#e0d5cc;--text:#2c1810;--text2:#7a5c50;--text3:#b08070;
+  --shadow:0 2px 12px rgba(192,57,43,.10);--shadow-lg:0 4px 24px rgba(192,57,43,.16);
+  --radius:12px;--rsm:8px;--nav:64px;
+  --fh:'Oswald',sans-serif;--fb:'Source Sans 3',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-text-size-adjust:100%;height:100%;}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);
+  min-height:100vh;min-height:100dvh;
+  overflow-x:hidden;width:100%;position:relative;}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--red);
+  height:calc(56px + env(safe-area-inset-top,0px));
+  padding-top:env(safe-area-inset-top,0px);
+  display:flex;align-items:center;justify-content:space-between;padding-left:14px;padding-right:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.hdr-logo{font-family:var(--fh);font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:1px;display:flex;align-items:center;gap:8px;}
+.hdr-logo em{background:var(--gold);color:var(--red-dark);padding:2px 7px;border-radius:5px;font-style:normal;font-size:.82rem;font-weight:700;}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;padding:7px 11px;border-radius:6px;
+  cursor:pointer;font-family:var(--fb);font-size:.8rem;transition:background .2s;}
+.hdr-btn:hover{background:rgba(255,255,255,.28);}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;
+  border-top:2px solid var(--border);display:grid;grid-template-columns:repeat(6,1fr);
+  height:calc(var(--nav) + env(safe-area-inset-bottom,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  box-shadow:0 -2px 12px rgba(0,0,0,.08);}
+.ni{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;padding:6px 2px;border:none;background:none;color:var(--text3);
+  transition:color .2s;font-family:var(--fb);gap:3px;-webkit-tap-highlight-color:transparent;}
+.ni.active{color:var(--red);}
+.ni:active{background:rgba(192,57,43,.06);}
+.ni svg{width:22px;height:22px;fill:currentColor;flex-shrink:0;}
+.ni span{font-size:.6rem;font-weight:600;letter-spacing:.3px;line-height:1;}
+
+/* PAGES */
+.pg{display:none;
+  padding-top:calc(56px + env(safe-area-inset-top,0px) + 12px);
+  padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 12px);
+  min-height:100vh;min-height:100dvh;}
+.pg.active{display:block;}
+.pc{padding:0 12px;}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;}
+.card-hdr{background:var(--red);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-hdr h2{font-family:var(--fh);font-size:.95rem;font-weight:600;color:#fff;letter-spacing:.5px;}
+.card-body{padding:14px;}
+
+/* BANNER */
+.banner{background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);
+  border-radius:var(--radius);padding:18px 14px;text-align:center;box-shadow:var(--shadow-lg);
+  margin-bottom:12px;position:relative;overflow:hidden;}
+.banner::before{content:'';position:absolute;top:-30px;right:-30px;width:110px;height:110px;
+  background:rgba(255,255,255,.06);border-radius:50%;}
+.btitle{font-family:var(--fh);font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:2px;}
+.bsub{color:rgba(255,255,255,.7);font-size:.72rem;letter-spacing:1px;margin-top:2px;}
+.petty-wrap{margin-top:10px;display:inline-flex;align-items:center;gap:6px;
+  background:var(--gold);color:var(--red-dark);padding:5px 12px;border-radius:20px;
+  font-weight:700;font-size:.85rem;font-family:var(--fh);}
+.petty-wrap input{width:80px;background:transparent;border:none;border-bottom:2px dashed rgba(150,40,27,.4);outline:none;
+  font-family:inherit;font-size:inherit;font-weight:inherit;color:inherit;
+  text-align:right;padding:0 2px;-moz-appearance:textfield;}
+.petty-wrap input::-webkit-outer-spin-button,
+.petty-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.petty-wrap input:focus{border-bottom-color:var(--red-dark);}
+
+/* STATS GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.scard{background:var(--surface);border-radius:var(--radius);padding:13px 11px;text-align:center;
+  box-shadow:var(--shadow);border-left:4px solid var(--border);}
+.scard.s-green{border-left-color:var(--green);}
+.scard.s-gold{border-left-color:var(--gold);}
+.scard.s-red{border-left-color:var(--red);}
+.scard.s-purple{border-left-color:#8e44ad;}
+.slabel{font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);margin-bottom:4px;}
+.sval{font-family:var(--fh);font-size:1.2rem;font-weight:700;color:var(--text);}
+.sval.green{color:var(--green);}.sval.red{color:var(--red);}.sval.gold{color:var(--gold);}.sval.purple{color:#8e44ad;}
+
+/* DATETIME */
+.dtbar{background:var(--surface);border-radius:var(--rsm);padding:9px 13px;
+  display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);
+  margin-bottom:12px;font-size:.8rem;color:var(--text2);}
+.dtbar strong{color:var(--text);font-weight:600;}
+
+/* QUICK SUMMARY */
+.qs{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;}
+.qsr{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--border);}
+.qsr:last-child{border-bottom:none;}
+.qsl{font-size:.8rem;color:var(--text2);display:flex;align-items:center;gap:6px;}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.qsv{font-family:var(--fh);font-size:.95rem;font-weight:700;}
+
+/* SECTION HEADER */
+.shdr{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;
+  background:var(--red);border-radius:var(--rsm) var(--rsm) 0 0;}
+.shdr h3{font-family:var(--fh);font-size:.92rem;color:#fff;letter-spacing:.5px;}
+.stotal{font-family:var(--fh);font-size:1rem;color:var(--gold-light);font-weight:700;}
+
+/* TRANS TABLE */
+.twrap{background:var(--surface);border-radius:0 0 var(--rsm) var(--rsm);box-shadow:var(--shadow);margin-bottom:0;overflow:hidden;}
+.tscroll{max-height:420px;overflow-y:auto;}
+.trow{display:grid;grid-template-columns:40px 1fr 36px;align-items:center;border-bottom:1px solid var(--border);}
+.trow:last-child{border-bottom:none;}
+.trow:nth-child(even){background:var(--surface2);}
+.tnum{text-align:center;font-size:.7rem;color:var(--text3);font-weight:600;padding:8px 3px;
+  background:var(--surface2);border-right:1px solid var(--border);height:100%;
+  display:flex;align-items:center;justify-content:center;}
+.tinput{border:none;outline:none;background:transparent;font-family:var(--fb);font-size:.9rem;
+  font-weight:500;color:var(--text);padding:9px 9px;width:100%;text-align:right;}
+.tinput:focus{background:#fff8f6;}
+.tinput::placeholder{color:var(--text3);font-size:.78rem;}
+.tclr{background:none;border:none;color:var(--text3);cursor:pointer;padding:8px 5px;
+  font-size:.72rem;display:flex;align-items:center;justify-content:center;transition:color .2s;}
+.tclr:hover{color:var(--red);}
+
+/* TOTAL BAR */
+.tbar{background:linear-gradient(90deg,var(--red-dark),var(--red));padding:11px 14px;
+  display:flex;align-items:center;justify-content:space-between;border-radius:0 0 var(--rsm) var(--rsm);}
+.tbarlabel{font-family:var(--fh);color:rgba(255,255,255,.8);font-size:.82rem;letter-spacing:.8px;}
+.tbaramount{font-family:var(--fh);color:var(--gold-light);font-size:1.25rem;font-weight:700;}
+
+/* DELIVERY TABS */
+.dtabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.dtab{padding:10px;border:2px solid var(--border);border-radius:var(--rsm);background:var(--surface);
+  cursor:pointer;text-align:center;font-family:var(--fh);font-size:.88rem;color:var(--text2);transition:all .2s;}
+.dtab.active{border-color:var(--red);background:var(--red);color:#fff;}
+.dtab .ticon{font-size:1.2rem;display:block;margin-bottom:2px;}
+
+/* EXPENSES / CASH */
+.eitem{display:grid;grid-template-columns:1fr 110px 34px;gap:7px;align-items:center;margin-bottom:7px;}
+.citem{display:grid;grid-template-columns:1fr 34px;gap:7px;align-items:center;margin-bottom:7px;}
+.einput{border:1.5px solid var(--border);border-radius:var(--rsm);padding:8px 10px;
+  font-family:var(--fb);font-size:.87rem;color:var(--text);background:var(--surface);
+  outline:none;transition:border-color .2s;width:100%;}
+.einput:focus{border-color:var(--red);}
+.addbtn{background:var(--green);color:#fff;border:none;border-radius:var(--rsm);padding:9px 13px;
+  cursor:pointer;font-family:var(--fh);font-size:.82rem;font-weight:600;letter-spacing:.5px;
+  display:flex;align-items:center;gap:5px;transition:background .2s;margin-top:8px;}
+.addbtn:hover{background:#229954;}
+.delbtn{background:none;border:1.5px solid var(--border);color:var(--text3);border-radius:var(--rsm);
+  padding:7px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.delbtn:hover{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* SUMMARY */
+.sumrow{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-bottom:1px solid var(--border);}
+.sumrow:last-child{border-bottom:none;}
+.sumlabel{font-size:.83rem;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:6px;}
+.sumval{font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--text);}
+.sumval.green{color:var(--green);}.sumval.red{color:var(--red);}.sumval.gold{color:var(--gold);}
+.fbcard{background:linear-gradient(135deg,var(--green) 0%,#1e8449 100%);border-radius:var(--radius);
+  padding:18px;text-align:center;margin-bottom:12px;box-shadow:var(--shadow-lg);}
+.fbcard.neg{background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);}
+.fblabel{font-family:var(--fh);font-size:.82rem;color:rgba(255,255,255,.75);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.fbamount{font-family:var(--fh);font-size:2rem;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+.fbsub{color:rgba(255,255,255,.6);font-size:.72rem;margin-top:4px;}
+
+/* SETTINGS */
+.ssec{margin-bottom:14px;}
+.ssec h4{font-family:var(--fh);font-size:.82rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:3px;}
+.sbtn{width:100%;padding:12px 14px;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--rsm);cursor:pointer;font-family:var(--fb);font-size:.88rem;color:var(--text);
+  text-align:left;display:flex;align-items:center;gap:9px;margin-bottom:8px;transition:all .2s;box-shadow:var(--shadow);}
+.sbtn:hover{border-color:var(--red);background:#fff8f6;}
+.sbtn.danger{border-color:#e74c3c;color:var(--red);}
+.sbtn.danger:hover{background:#fff5f5;}
+.sicon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
+.sarr{margin-left:auto;color:var(--text3);font-size:.8rem;}
+
+/* PETTY CASH EDITOR in Settings */
+.petty-editor{background:var(--surface);border-radius:var(--rsm);padding:13px 14px;
+  box-shadow:var(--shadow);margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.petty-editor label{font-size:.83rem;color:var(--text2);flex:1;font-weight:500;}
+.petty-editor input{width:100px;border:1.5px solid var(--border);border-radius:var(--rsm);
+  padding:8px 10px;font-family:var(--fh);font-size:1rem;color:var(--text);
+  text-align:right;outline:none;transition:border-color .2s;-moz-appearance:textfield;}
+.petty-editor input::-webkit-outer-spin-button,
+.petty-editor input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.petty-editor input:focus{border-color:var(--red);}
+.petty-save{background:var(--red);color:#fff;border:none;border-radius:var(--rsm);
+  padding:9px 14px;font-family:var(--fh);font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:background .2s;white-space:nowrap;}
+.petty-save:hover{background:var(--red-dark);}
+
+/* MODALS */
+.moverlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(44,24,16,.55);
+  backdrop-filter:blur(2px);align-items:center;justify-content:center;padding:16px;}
+.moverlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius);padding:22px 18px;width:100%;max-width:340px;
+  box-shadow:var(--shadow-lg);animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(18px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal h3{font-family:var(--fh);font-size:1.05rem;margin-bottom:7px;color:var(--text);}
+.modal p{font-size:.83rem;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+.mbtns{display:flex;gap:9px;}
+.btn{flex:1;padding:10px;border:none;border-radius:var(--rsm);cursor:pointer;
+  font-family:var(--fh);font-size:.88rem;font-weight:600;letter-spacing:.5px;transition:all .2s;}
+.btn-p{background:var(--red);color:#fff;}.btn-p:hover{background:var(--red-dark);}
+.btn-s{background:var(--border);color:var(--text);}.btn-s:hover{background:#d0c5bc;}
+
+/* TOAST */
+.toast{position:fixed;top:66px;left:50%;transform:translateX(-50%) translateY(-14px);
+  background:var(--text);color:#fff;padding:9px 16px;border-radius:18px;font-size:.82rem;
+  z-index:300;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
+  box-shadow:var(--shadow-lg);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* PDF PRINT AREA */
+#print-area{display:none;}
+@media print{
+  .hdr,.bnav,.addbtn,.delbtn,.tclr{display:none!important;}
+  #print-area{display:block!important;padding:16px;}
+  body>*:not(#print-area){display:none!important;}
+  .print-page-break{page-break-before:always;}
+  #print-area *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  #print-area td,#print-area th{font-size:20px!important;font-weight:900!important;}
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* EXPORT BTNS GRID */
+.expgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.expbtn{padding:12px 8px;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--rsm);cursor:pointer;font-family:var(--fb);font-size:.8rem;color:var(--text);
+  text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;
+  box-shadow:var(--shadow);transition:all .2s;}
+.expbtn:hover{border-color:var(--red);background:#fff8f6;}
+.expbtn .eico{font-size:1.25rem;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-logo">🍛 BIRIYANI <em>6</em></div>
+  <button class="hdr-btn" onclick="openPage('settings')">⚙️ Settings</button>
+</header>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- PRINT AREA (hidden, shown only on print) -->
+<div id="print-area"></div>
+
+<!-- ══════════════ PAGE: DASHBOARD ══════════════ -->
+<div class="pg active" id="pg-dashboard">
+  <div class="pc">
+    <div class="banner">
+      <div class="btitle">RESTORAN BIRIYANI 6</div>
+      <div class="bsub">SISTEM JUALAN &amp; PENGURUSAN KAS</div>
+      <div class="petty-wrap">
+        💰 PETTY CASH: RM
+        <input id="petty-input" type="number" min="0" step="0.01"
+          inputmode="decimal" placeholder="0.00" value="50"
+          onchange="onPettyChange(this.value)" title="Tap to edit petty cash"/>
+      </div>
+    </div>
+
+    <div class="dtbar">
+      <span>📅 <strong id="d-date"></strong></span>
+      <span>🕐 <strong id="d-time"></strong></span>
+    </div>
+
+    <div class="sgrid">
+      <div class="scard s-green"><div class="slabel">TOTAL SALES</div><div class="sval green" id="d-sales">RM 0.00</div></div>
+      <div class="scard s-gold"><div class="slabel">TOTAL BILLS</div><div class="sval gold" id="d-bills">0</div></div>
+      <div class="scard s-purple"><div class="slabel">TOTAL EXPENSES</div><div class="sval purple" id="d-exp">RM 0.00</div></div>
+      <div class="scard s-red"><div class="slabel">FINAL BALANCE</div><div class="sval" id="d-bal">RM 50.00</div></div>
+    </div>
+
+    <div class="qs">
+      <div class="qsr"><span class="qsl"><span class="dot" style="background:#27ae60;"></span>QR Sales</span><span class="qsv green" id="d-qr">RM 0.00</span></div>
+      <div class="qsr"><span class="qsl"><span class="dot" style="background:#e91e63;"></span>FoodPanda</span><span class="qsv" style="color:#e91e63" id="d-fp">RM 0.00</span></div>
+      <div class="qsr"><span class="qsl"><span class="dot" style="background:#00b14f;"></span>Grab Order</span><span class="qsv" style="color:#00b14f" id="d-gr">RM 0.00</span></div>
+      <div class="qsr"><span class="qsl"><span class="dot" style="background:var(--gold);"></span>Cash Income</span><span class="qsv gold" id="d-cash">RM 0.00</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE: QR SALES ══════════════ -->
+<div class="pg" id="pg-qr">
+  <div class="pc">
+    <div class="shdr"><h3>📱 QR SALES</h3><span class="stotal" id="qr-htotal">RM 0.00</span></div>
+    <div class="twrap"><div class="tscroll" id="qr-rows"></div></div>
+    <div class="tbar"><span class="tbarlabel">JUMLAH QR SALES</span><span class="tbaramount" id="qr-total">RM 0.00</span></div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE: DELIVERY ══════════════ -->
+<div class="pg" id="pg-delivery">
+  <div class="pc">
+    <div class="dtabs">
+      <div class="dtab active" id="tab-fp" onclick="switchDel('fp')"><span class="ticon">🐼</span>FoodPanda</div>
+      <div class="dtab" id="tab-gr" onclick="switchDel('gr')"><span class="ticon">🚗</span>Grab Order</div>
+    </div>
+    <div id="del-fp">
+      <div class="shdr"><h3>🐼 FOODPANDA</h3><span class="stotal" id="fp-htotal">RM 0.00</span></div>
+      <div class="twrap"><div class="tscroll" id="fp-rows"></div></div>
+      <div class="tbar"><span class="tbarlabel">JUMLAH FOODPANDA</span><span class="tbaramount" id="fp-total">RM 0.00</span></div>
+    </div>
+    <div id="del-gr" style="display:none;">
+      <div class="shdr"><h3>🚗 GRAB ORDER</h3><span class="stotal" id="gr-htotal">RM 0.00</span></div>
+      <div class="twrap"><div class="tscroll" id="gr-rows"></div></div>
+      <div class="tbar"><span class="tbarlabel">JUMLAH GRAB</span><span class="tbaramount" id="gr-total">RM 0.00</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE: EXPENSES ══════════════ -->
+<div class="pg" id="pg-expenses">
+  <div class="pc">
+    <div class="shdr" style="border-radius:var(--rsm);"><h3>📋 DAILY EXPENSES</h3><span class="stotal" id="exp-htotal">RM 0.00</span></div>
+    <div class="card" style="border-radius:0 0 var(--radius) var(--radius);margin-top:0;">
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 110px 34px;gap:7px;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:2px;">
+          <span style="font-size:.67rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Item Name</span>
+          <span style="font-size:.67rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;text-align:right;">Amount (RM)</span>
+          <span></span>
+        </div>
+        <div id="exp-list"></div>
+        <button class="addbtn" onclick="addExp()">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>ADD ITEM
+        </button>
+      </div>
+    </div>
+    <div class="tbar" style="border-radius:var(--rsm);margin-top:0;">
+      <span class="tbarlabel">JUMLAH EXPENSES</span><span class="tbaramount" id="exp-total">RM 0.00</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE: CASH INCOME ══════════════ -->
+<div class="pg" id="pg-cash">
+  <div class="pc">
+    <div class="shdr" style="border-radius:var(--rsm);"><h3>💵 DAILY CASH INCOME</h3><span class="stotal" id="cash-htotal">RM 0.00</span></div>
+    <div class="card" style="border-radius:0 0 var(--radius) var(--radius);margin-top:0;">
+      <div class="card-body">
+        <div id="cash-list"></div>
+        <button class="addbtn" onclick="addCash()">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>ADD ENTRY
+        </button>
+      </div>
+    </div>
+    <div class="tbar" style="border-radius:var(--rsm);margin-top:0;">
+      <span class="tbarlabel">JUMLAH CASH INCOME</span><span class="tbaramount" id="cash-total">RM 0.00</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE: SUMMARY ══════════════ -->
+<div class="pg" id="pg-summary">
+  <div class="pc">
+    <div class="fbcard" id="fbcard">
+      <div class="fblabel">FINAL DAILY BALANCE</div>
+      <div class="fbamount" id="sum-final">RM 50.00</div>
+      <div class="fbsub" id="sum-sub">Petty Cash RM 50.00 + Income − Expenses</div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><h2>📊 SALES SUMMARY</h2></div>
+      <div style="padding:0;">
+        <div class="sumrow"><span class="sumlabel"><span class="dot" style="background:#27ae60;"></span>QR Sales Total</span><span class="sumval green" id="sum-qr">RM 0.00</span></div>
+        <div class="sumrow"><span class="sumlabel"><span class="dot" style="background:#e91e63;"></span>FoodPanda Total</span><span class="sumval" style="color:#e91e63" id="sum-fp">RM 0.00</span></div>
+        <div class="sumrow"><span class="sumlabel"><span class="dot" style="background:#00b14f;"></span>Grab Order Total</span><span class="sumval" style="color:#00b14f" id="sum-gr">RM 0.00</span></div>
+        <div class="sumrow"><span class="sumlabel"><span class="dot" style="background:var(--gold);"></span>Cash Income</span><span class="sumval gold" id="sum-cash">RM 0.00</span></div>
+        <div class="sumrow"><span class="sumlabel"><span class="dot" style="background:#2980b9;"></span>Petty Cash</span><span class="sumval" style="color:#2980b9" id="sum-petty">RM 50.00</span></div>
+        <div class="sumrow" style="background:#fff5f5;"><span class="sumlabel"><span class="dot" style="background:#8e44ad;"></span>Total Expenses</span><span class="sumval red" id="sum-exp">RM 0.00</span></div>
+        <div class="sumrow" style="background:#f0faf5;border-top:2px solid var(--green);"><span class="sumlabel" style="font-weight:700;color:var(--text);"><span class="dot" style="background:var(--green);"></span>TOTAL INCOME</span><span class="sumval green" id="sum-income">RM 0.00</span></div>
+        <div class="sumrow" style="background:#f5f0ff;border-top:2px solid var(--red);"><span class="sumlabel" style="font-weight:700;color:var(--red);"><span class="dot" style="background:var(--red);"></span>TOTAL BILLS</span><span class="sumval red" id="sum-bills">0 bills</span></div>
+      </div>
+    </div>
+
+    <!-- FIX #5: Export grid now includes Import JSON -->
+    <div class="expgrid">
+      <button class="expbtn" onclick="doPrint()"><span class="eico">🖨️</span>Print Full Report</button>
+      <button class="expbtn" onclick="doWhatsApp()"><span class="eico">💬</span>WhatsApp</button>
+      <button class="expbtn" onclick="doJSON()"><span class="eico">💾</span>Export JSON</button>
+      <button class="expbtn" onclick="triggerImport()"><span class="eico">📂</span>Import JSON</button>
+    </div>
+    <input type="file" id="imp-file-sum" accept=".json" style="display:none;" onchange="doImport(event)"/>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE: SETTINGS ══════════════ -->
+<div class="pg" id="pg-settings">
+  <div class="pc">
+    <div class="banner" style="padding:13px 14px;margin-bottom:12px;">
+      <div style="font-family:var(--fh);font-size:1.05rem;color:#fff;letter-spacing:1px;">⚙️ SETTINGS &amp; BACKUP</div>
+    </div>
+
+    <!-- FIX #2: Dedicated Petty Cash editor -->
+    <div class="ssec">
+      <h4>💰 Petty Cash</h4>
+      <div class="petty-editor">
+        <label>Set Petty Cash Amount (RM)</label>
+        <input type="number" id="set-petty-input" min="0" step="0.01"
+          inputmode="decimal" placeholder="0.00"/>
+        <button class="petty-save" onclick="savePettyCash()">SAVE</button>
+      </div>
+      <div style="font-size:.76rem;color:var(--text3);padding-left:3px;margin-bottom:4px;">
+        Current: <strong style="color:var(--green);" id="set-petty">RM 50.00</strong>
+      </div>
+    </div>
+
+    <div class="ssec">
+      <h4>Export &amp; Backup</h4>
+      <button class="sbtn" onclick="doPrint()"><span class="sicon" style="background:#fce4ec;">🖨️</span>Print Full Report<span class="sarr">›</span></button>
+      <button class="sbtn" onclick="doWhatsApp()"><span class="sicon" style="background:#e8f5e9;">💬</span>Share via WhatsApp<span class="sarr">›</span></button>
+      <button class="sbtn" onclick="doJSON()"><span class="sicon" style="background:#e3f2fd;">💾</span>Export JSON Backup<span class="sarr">›</span></button>
+      <button class="sbtn" onclick="triggerImport()"><span class="sicon" style="background:#fff8e1;">📂</span>Import JSON Backup<span class="sarr">›</span></button>
+      <input type="file" id="imp-file" accept=".json" style="display:none;" onchange="doImport(event)"/>
+    </div>
+
+    <div class="ssec">
+      <h4>Data Management</h4>
+      <button class="sbtn danger" onclick="openModal('modal-clear')"><span class="sicon" style="background:#ffebee;">🗑️</span>Clear All Data<span class="sarr" style="color:var(--red);">›</span></button>
+      <button class="sbtn danger" onclick="openModal('modal-reset')"><span class="sicon" style="background:#ffebee;">⚠️</span>Reset IndexedDB Database<span class="sarr" style="color:var(--red);">›</span></button>
+    </div>
+
+    <div class="ssec">
+      <h4>App Info</h4>
+      <div class="card">
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:.83rem;">
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text2);">App Name</span><strong>BIRIYANI 6 POS</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text2);">Version</span><strong>1.2.0</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text2);">Storage</span><strong>IndexedDB (Offline)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text2);">Mode</span><strong>PWA / Installable</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="ni active" id="ni-dashboard" onclick="openPage('dashboard')">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span>
+  </button>
+  <button class="ni" id="ni-qr" onclick="openPage('qr')">
+    <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v2h2v-2zm0 4h-2v2h2v-2zm2-4h-2v2h2v-2zm-4 0h-2v2h2v-2zm-2 4h2v2h-2v-2zm4 0h-2v2h2v-2zm2 0h-2v2h2v-2z"/></svg><span>QR</span>
+  </button>
+  <button class="ni" id="ni-delivery" onclick="openPage('delivery')">
+    <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-.5 1.5l1.96 2.5H17V9.5h2.5zM6 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2.22-3c-.55-.61-1.33-1-2.22-1-.89 0-1.67.39-2.22 1H3V6h12v9H8.22zM18 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg><span>Delivery</span>
+  </button>
+  <button class="ni" id="ni-expenses" onclick="openPage('expenses')">
+    <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg><span>Expenses</span>
+  </button>
+  <button class="ni" id="ni-cash" onclick="openPage('cash')">
+    <svg viewBox="0 0 24 24"><path d="M11 17h2v-1h1c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1h-3v-1h4V8h-2V7h-2v1h-1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h3v1H9v2h2v1zM20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z"/></svg><span>Cash</span>
+  </button>
+  <button class="ni" id="ni-summary" onclick="openPage('summary')">
+    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg><span>Summary</span>
+  </button>
+</nav>
+
+<!-- MODALS -->
+<div class="moverlay" id="modal-clear">
+  <div class="modal">
+    <h3>🗑️ Clear All Data</h3>
+    <p>Deletes all sales, expenses and cash entries. Your Petty Cash amount is kept. Cannot be undone.</p>
+    <div class="mbtns">
+      <button class="btn btn-s" onclick="closeModal('modal-clear')">Cancel</button>
+      <button class="btn btn-p" onclick="clearAll()">Clear All</button>
+    </div>
+  </div>
+</div>
+<div class="moverlay" id="modal-reset">
+  <div class="modal">
+    <h3>⚠️ Reset Database</h3>
+    <p>Completely wipes the IndexedDB database and reloads the app. All data will be lost.</p>
+    <div class="mbtns">
+      <button class="btn btn-s" onclick="closeModal('modal-reset')">Cancel</button>
+      <button class="btn btn-p" onclick="resetDB()">Reset DB</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── IndexedDB ───────────────────────────────────────────
+const DB_NAME = 'B6DB', DB_VER = 1;
+let db;
+function openDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, DB_VER);
+    r.onupgradeneeded = e => { const d = e.target.result; if (!d.objectStoreNames.contains('data')) d.createObjectStore('data'); };
+    r.onsuccess = e => { db = e.target.result; res(); };
+    r.onerror = e => rej(e);
+  });
+}
+function dbGet(k) { return new Promise((res,rej)=>{ const r=db.transaction('data','readonly').objectStore('data').get(k); r.onsuccess=()=>res(r.result); r.onerror=rej; }); }
+function dbSet(k,v) { return new Promise((res,rej)=>{ const r=db.transaction('data','readwrite').objectStore('data').put(v,k); r.onsuccess=res; r.onerror=rej; }); }
+function dbClear() { return new Promise((res,rej)=>{ const r=db.transaction('data','readwrite').objectStore('data').clear(); r.onsuccess=res; r.onerror=rej; }); }
+
+// ─── State ───────────────────────────────────────────────
+let S = { qr:new Array(100).fill(''), fp:new Array(100).fill(''), gr:new Array(100).fill(''), exp:[], cash:[], petty:50 };
+
+async function save() { await dbSet('S', S); refresh(); }
+
+async function load() {
+  const d = await dbGet('S');
+  if (d) {
+    S.qr   = d.qr   || new Array(100).fill('');
+    S.fp   = d.fp   || new Array(100).fill('');
+    S.gr   = d.gr   || new Array(100).fill('');
+    S.exp  = d.exp  || [];
+    S.cash = d.cash || [];
+    S.petty= (d.petty !== undefined) ? d.petty : 50;
+  }
+}
+
+// ─── Helpers ─────────────────────────────────────────────
+const fmt = n => 'RM ' + parseFloat(n||0).toFixed(2);
+const sum = a => a.reduce((t,v) => t + (parseFloat(v)||0), 0);
+const bills = a => a.filter(v => parseFloat(v) > 0).length;
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function totals() {
+  const qr = sum(S.qr), fp = sum(S.fp), gr = sum(S.gr);
+  const cash = S.cash.reduce((t,v)=>t+(parseFloat(v.amount)||0),0);
+  const exp  = S.exp.reduce((t,v)=>t+(parseFloat(v.amount)||0),0);
+  const inc  = qr+fp+gr+cash;
+  const bl   = bills(S.qr)+bills(S.fp)+bills(S.gr);
+  const pc   = parseFloat(S.petty)||0;
+  const bal  = pc + inc - exp;
+  return {qr,fp,gr,cash,exp,inc,bl,pc,bal};
+}
+
+// ─── Navigation ──────────────────────────────────────────
+function openPage(name) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('pg-'+name).classList.add('active');
+  const ni = document.getElementById('ni-'+name);
+  if (ni) ni.classList.add('active');
+  if (name==='summary') refresh();
+}
+
+// ─── Date/Time ───────────────────────────────────────────
+function tick() {
+  const n=new Date(), days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('d-date').textContent = days[n.getDay()]+', '+n.getDate()+' '+months[n.getMonth()]+' '+n.getFullYear();
+  const h=n.getHours(), m=n.getMinutes(), ap=h>=12?'PM':'AM';
+  document.getElementById('d-time').textContent = (h%12||12)+':'+String(m).padStart(2,'0')+' '+ap;
+}
+
+// ─── Transaction Rows ────────────────────────────────────
+function buildRows(cid, key, tid, htid) {
+  const c = document.getElementById(cid);
+  c.innerHTML = '';
+  for (let i=0;i<100;i++) {
+    const r = document.createElement('div');
+    r.className = 'trow';
+    r.innerHTML = '<div class="tnum">'+(i+1)+'</div>'+
+      '<input class="tinput" type="number" min="0" step="0.01" placeholder="0.00"'+
+      ' value="'+(S[key][i]||'')+'" inputmode="decimal"'+
+      ' oninput="onTrans(\''+key+'\','+i+',this.value,\''+tid+'\',\''+htid+'\')"/>'+
+      '<button class="tclr" onclick="clrTrans(\''+key+'\','+i+',\''+tid+'\',\''+htid+'\')">✕</button>';
+    c.appendChild(r);
+  }
+  fmtTotal(key, tid, htid);
+}
+
+function onTrans(key,i,val,tid,htid) { S[key][i]=val; fmtTotal(key,tid,htid); save(); }
+function clrTrans(key,i,tid,htid) {
+  S[key][i]='';
+  const map={'qr':'qr-rows','fp':'fp-rows','gr':'gr-rows'};
+  const inputs=document.getElementById(map[key]).querySelectorAll('.tinput');
+  if(inputs[i]) inputs[i].value='';
+  fmtTotal(key,tid,htid); save();
+}
+function fmtTotal(key,tid,htid) { const t=sum(S[key]); document.getElementById(tid).textContent=fmt(t); document.getElementById(htid).textContent=fmt(t); }
+
+// ─── Delivery Switch ─────────────────────────────────────
+function switchDel(type) {
+  document.getElementById('del-fp').style.display = type==='fp'?'block':'none';
+  document.getElementById('del-gr').style.display = type==='gr'?'block':'none';
+  document.getElementById('tab-fp').classList.toggle('active',type==='fp');
+  document.getElementById('tab-gr').classList.toggle('active',type==='gr');
+}
+
+// ─── Expenses ────────────────────────────────────────────
+function renderExp() {
+  const l=document.getElementById('exp-list'); l.innerHTML='';
+  S.exp.forEach((item,i)=>{
+    const r=document.createElement('div'); r.className='eitem';
+    r.innerHTML='<input class="einput" type="text" placeholder="Item name" value="'+esc(item.name||'')+'" oninput="updExp('+i+',\'name\',this.value)"/>'+
+      '<input class="einput" type="number" min="0" step="0.01" placeholder="0.00" value="'+(item.amount||'')+'" oninput="updExp('+i+',\'amount\',this.value)" inputmode="decimal" style="text-align:right;"/>'+
+      '<button class="delbtn" onclick="delExp('+i+')"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>';
+    l.appendChild(r);
+  });
+  fmtExp();
+}
+function addExp() { S.exp.push({name:'',amount:''}); renderExp(); save(); }
+function updExp(i,f,v) { S.exp[i][f]=v; fmtExp(); save(); }
+function delExp(i) { S.exp.splice(i,1); renderExp(); save(); }
+function fmtExp() { const t=S.exp.reduce((a,v)=>a+(parseFloat(v.amount)||0),0); document.getElementById('exp-total').textContent=fmt(t); document.getElementById('exp-htotal').textContent=fmt(t); }
+
+// ─── Cash Income ─────────────────────────────────────────
+function renderCash() {
+  const l=document.getElementById('cash-list'); l.innerHTML='';
+  S.cash.forEach((item,i)=>{
+    const r=document.createElement('div'); r.className='citem';
+    r.innerHTML='<input class="einput" type="number" min="0" step="0.01" placeholder="Amount (RM)" value="'+(item.amount||'')+'" oninput="updCash('+i+',this.value)" inputmode="decimal" style="text-align:right;"/>'+
+      '<button class="delbtn" onclick="delCash('+i+')"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>';
+    l.appendChild(r);
+  });
+  fmtCash();
+}
+function addCash() { S.cash.push({amount:''}); renderCash(); save(); }
+function updCash(i,v) { S.cash[i].amount=v; fmtCash(); save(); }
+function delCash(i) { S.cash.splice(i,1); renderCash(); save(); }
+function fmtCash() { const t=S.cash.reduce((a,v)=>a+(parseFloat(v.amount)||0),0); document.getElementById('cash-total').textContent=fmt(t); document.getElementById('cash-htotal').textContent=fmt(t); }
+
+// ─── Petty Cash ──────────────────────────────────────────
+// Dashboard inline edit
+function onPettyChange(v) {
+  const val = parseFloat(v) || 0;
+  S.petty = val;
+  save();
+}
+
+// FIX #2: Settings petty cash save button
+function savePettyCash() {
+  const inp = document.getElementById('set-petty-input');
+  const val = parseFloat(inp.value) || 0;
+  S.petty = val;
+  document.getElementById('petty-input').value = val;
+  save();
+  toast('Petty Cash updated: ' + fmt(val));
+}
+
+// ─── Refresh All ─────────────────────────────────────────
+function refresh() {
+  const t = totals();
+  // Dashboard
+  document.getElementById('d-sales').textContent = fmt(t.inc);
+  document.getElementById('d-bills').textContent = t.bl+' bills';
+  document.getElementById('d-exp').textContent   = fmt(t.exp);
+  const balEl = document.getElementById('d-bal');
+  balEl.textContent = fmt(t.bal);
+  balEl.className = 'sval '+(t.bal>=0?'green':'red');
+  document.getElementById('d-qr').textContent   = fmt(t.qr);
+  document.getElementById('d-fp').textContent   = fmt(t.fp);
+  document.getElementById('d-gr').textContent   = fmt(t.gr);
+  document.getElementById('d-cash').textContent = fmt(t.cash);
+  // Summary
+  document.getElementById('sum-qr').textContent     = fmt(t.qr);
+  document.getElementById('sum-fp').textContent     = fmt(t.fp);
+  document.getElementById('sum-gr').textContent     = fmt(t.gr);
+  document.getElementById('sum-cash').textContent   = fmt(t.cash);
+  document.getElementById('sum-petty').textContent  = fmt(t.pc);
+  document.getElementById('sum-exp').textContent    = fmt(t.exp);
+  document.getElementById('sum-income').textContent = fmt(t.inc);
+  document.getElementById('sum-bills').textContent  = t.bl+' bills';
+  document.getElementById('sum-final').textContent  = fmt(t.bal);
+  document.getElementById('sum-sub').textContent    = 'Petty Cash '+fmt(t.pc)+' + Income − Expenses';
+  document.getElementById('fbcard').className = 'fbcard'+(t.bal<0?' neg':'');
+  // Settings petty display + input sync
+  document.getElementById('set-petty').textContent = fmt(t.pc);
+  document.getElementById('set-petty-input').value = t.pc || '';
+  document.getElementById('petty-input').value = t.pc || '';
+}
+
+// ─── Modals ──────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+async function clearAll() {
+  const pc = S.petty;
+  S = { qr:new Array(100).fill(''), fp:new Array(100).fill(''), gr:new Array(100).fill(''), exp:[], cash:[], petty:pc };
+  await save();
+  buildRows('qr-rows','qr','qr-total','qr-htotal');
+  buildRows('fp-rows','fp','fp-total','fp-htotal');
+  buildRows('gr-rows','gr','gr-total','gr-htotal');
+  renderExp(); renderCash();
+  closeModal('modal-clear'); toast('All data cleared!');
+}
+
+async function resetDB() {
+  await dbClear(); closeModal('modal-reset');
+  toast('Database reset! Reloading…');
+  setTimeout(()=>location.reload(),1500);
+}
+
+// ─── FIX #5: Export / Import JSON ────────────────────────
+function doJSON() {
+  const exportData = {
+    version: '1.2.0',
+    exported: new Date().toISOString(),
+    data: S
+  };
+  const b = new Blob([JSON.stringify(exportData, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  const d = new Date();
+  a.href = URL.createObjectURL(b);
+  a.download = 'biriyani6-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  toast('✅ Backup exported!');
+}
+
+// Import — works from both Settings and Summary pages
+function triggerImport() {
+  // Try both input elements
+  const el = document.getElementById('imp-file') || document.getElementById('imp-file-sum');
+  if (el) el.click();
+}
+
+async function doImport(e) {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const raw = JSON.parse(await f.text());
+    // Support both old format (direct S) and new format with wrapper
+    const d = raw.data || raw;
+    if (d.qr)   S.qr   = d.qr;
+    if (d.fp)   S.fp   = d.fp;
+    if (d.gr)   S.gr   = d.gr;
+    if (d.exp)  S.exp  = d.exp;
+    if (d.cash) S.cash = d.cash;
+    if (d.petty !== undefined) {
+      S.petty = d.petty;
+      document.getElementById('petty-input').value = d.petty;
+    }
+    await save();
+    buildRows('qr-rows','qr','qr-total','qr-htotal');
+    buildRows('fp-rows','fp','fp-total','fp-htotal');
+    buildRows('gr-rows','gr','gr-total','gr-htotal');
+    renderExp(); renderCash();
+    toast('✅ Data imported successfully!');
+  } catch(err) {
+    toast('❌ Import failed: invalid file');
+  }
+  e.target.value = '';
+}
+
+// ─── FIX #4: Full Detail Print ───────────────────────────
+function buildPrintTable(title, rows, color) {
+  const filled = rows.map((v,i)=>({n:i+1,v:v})).filter(r=>parseFloat(r.v)>0);
+  if (!filled.length) return '';
+  const total = filled.reduce((s,r)=>s+(parseFloat(r.v)||0),0);
+  const rowsHtml = filled.map(r=>
+    '<tr><td style="padding:12px 16px;border:2px solid #e0d5cc;text-align:center;font-size:22px;font-weight:900;">'+r.n+'</td>'+
+    '<td style="padding:12px 16px;border:2px solid #e0d5cc;text-align:right;font-size:22px;font-weight:900;">RM '+parseFloat(r.v).toFixed(2)+'</td></tr>'
+  ).join('');
+  return '<div style="margin-bottom:20px;">'+
+    '<div style="background:'+color+';color:#fff;padding:14px 18px;border-radius:6px 6px 0 0;font-family:Arial,sans-serif;font-size:24px;font-weight:900;letter-spacing:1px;">'+title+'</div>'+
+    '<table style="width:100%;border-collapse:collapse;background:#fff;">'+
+    '<thead><tr style="background:#f5f0eb;">'+
+    '<th style="padding:12px 16px;border:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:center;width:60px;">#</th>'+
+    '<th style="padding:12px 16px;border:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:right;">Amount</th>'+
+    '</tr></thead><tbody>'+rowsHtml+'</tbody>'+
+    '<tfoot><tr style="background:'+color+';color:#fff;">'+
+    '<td style="padding:14px 18px;font-size:22px;font-weight:900;border:2px solid '+color+';">TOTAL ('+filled.length+' bills)</td>'+
+    '<td style="padding:14px 18px;font-size:22px;font-weight:900;text-align:right;border:2px solid '+color+';">RM '+total.toFixed(2)+'</td>'+
+    '</tr></tfoot></table></div>';
+}
+
+function doPrint() {
+  const t = totals();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-MY',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'});
+
+  // QR / FP / GR detail tables
+  const qrTable = buildPrintTable('📱 QR SALES', S.qr, '#27ae60');
+  const fpTable = buildPrintTable('🐼 FOODPANDA', S.fp, '#e91e63');
+  const grTable = buildPrintTable('🚗 GRAB ORDER', S.gr, '#00b14f');
+
+  // Cash Income table
+  let cashTable = '';
+  if (S.cash.length > 0) {
+    const cashTotal = S.cash.reduce((a,v)=>a+(parseFloat(v.amount)||0),0);
+    cashTable = '<div style="margin-bottom:20px;">'+
+      '<div style="background:#f39c12;color:#96281b;padding:14px 18px;border-radius:6px 6px 0 0;font-family:Arial,sans-serif;font-size:24px;font-weight:900;letter-spacing:1px;">💵 CASH INCOME</div>'+
+      '<table style="width:100%;border-collapse:collapse;background:#fff;">'+
+      '<thead><tr style="background:#fffde7;"><th style="padding:12px 16px;border:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:center;width:60px;">#</th>'+
+      '<th style="padding:12px 16px;border:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:right;">Amount</th></tr></thead><tbody>'+
+      S.cash.map((c,i)=>'<tr><td style="padding:12px 16px;border:2px solid #e0d5cc;text-align:center;font-size:22px;font-weight:900;">'+(i+1)+'</td>'+
+        '<td style="padding:12px 16px;border:2px solid #e0d5cc;text-align:right;font-size:22px;font-weight:900;">RM '+parseFloat(c.amount||0).toFixed(2)+'</td></tr>').join('')+
+      '</tbody><tfoot><tr style="background:#f39c12;color:#96281b;">'+
+      '<td style="padding:14px 18px;font-size:22px;font-weight:900;border:2px solid #f39c12;">TOTAL ('+S.cash.length+' entries)</td>'+
+      '<td style="padding:14px 18px;font-size:22px;font-weight:900;text-align:right;border:2px solid #f39c12;">RM '+cashTotal.toFixed(2)+'</td>'+
+      '</tr></tfoot></table></div>';
+  }
+
+  // Expenses table
+  let expTable = '';
+  if (S.exp.length > 0) {
+    expTable = '<div style="margin-bottom:20px;">'+
+      '<div style="background:#8e44ad;color:#fff;padding:14px 18px;border-radius:6px 6px 0 0;font-family:Arial,sans-serif;font-size:24px;font-weight:900;">📋 DAILY EXPENSES</div>'+
+      '<table style="width:100%;border-collapse:collapse;background:#fff;">'+
+      '<thead><tr style="background:#f5f0eb;"><th style="padding:12px 16px;border:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:center;width:60px;">#</th>'+
+      '<th style="padding:12px 16px;border:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:left;">Item</th>'+
+      '<th style="padding:12px 16px;border:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:right;">Amount</th></tr></thead><tbody>'+
+      S.exp.map((ex,i)=>'<tr'+(i%2?' style="background:#fdf8f5;"':'')+'>'+
+        '<td style="padding:12px 16px;border:2px solid #e0d5cc;text-align:center;font-size:22px;font-weight:900;">'+(i+1)+'</td>'+
+        '<td style="padding:12px 16px;border:2px solid #e0d5cc;font-size:22px;font-weight:900;">'+esc(ex.name||'-')+'</td>'+
+        '<td style="padding:12px 16px;border:2px solid #e0d5cc;text-align:right;font-size:22px;font-weight:900;">RM '+parseFloat(ex.amount||0).toFixed(2)+'</td></tr>').join('')+
+      '</tbody><tfoot><tr style="background:#8e44ad;color:#fff;">'+
+      '<td colspan="2" style="padding:14px 18px;font-size:22px;font-weight:900;border:2px solid #8e44ad;">TOTAL EXPENSES</td>'+
+      '<td style="padding:14px 18px;font-size:22px;font-weight:900;text-align:right;border:2px solid #8e44ad;">RM '+t.exp.toFixed(2)+'</td>'+
+      '</tr></tfoot></table></div>';
+  }
+
+  // Summary section
+  const summaryRows = [
+    ['📱 QR Sales Total',   fmt(t.qr),   '#27ae60'],
+    ['🐼 FoodPanda Total',  fmt(t.fp),   '#e91e63'],
+    ['🚗 Grab Order Total', fmt(t.gr),   '#00b14f'],
+    ['💵 Cash Income',      fmt(t.cash), '#f39c12'],
+    ['💰 Petty Cash',       fmt(t.pc),   '#2980b9'],
+    ['📋 Total Expenses',   fmt(t.exp),  '#8e44ad'],
+    ['🧾 Total Sales Bills', t.bl+' bills','#7f8c8d'],
+    ['✅ TOTAL INCOME',     fmt(t.inc),  '#27ae60'],
+  ].map(([l,v,c])=>'<tr><td style="padding:12px 16px;border-bottom:2px solid #e0d5cc;font-size:20px;font-weight:900;color:#2c1810;">'+l+'</td>'+
+    '<td style="padding:12px 16px;border-bottom:2px solid #e0d5cc;font-size:20px;font-weight:900;text-align:right;color:'+c+';">'+v+'</td></tr>').join('');
+
+  const balColor = t.bal >= 0 ? '#27ae60' : '#c0392b';
+
+  const html = '<div style="font-family:Arial,sans-serif;color:#2c1810;max-width:700px;margin:0 auto;">'+
+    // Header
+    '<div style="background:linear-gradient(135deg,#c0392b,#96281b);padding:24px 20px;border-radius:8px;margin-bottom:20px;text-align:center;">'+
+    '<div style="font-size:2rem;font-weight:900;color:#fff;letter-spacing:2px;">RESTORAN BIRIYANI 6</div>'+
+    '<div style="color:rgba(255,255,255,.9);font-size:18px;font-weight:700;margin-top:6px;">SALES &amp; CASH REPORT</div>'+
+    '<div style="color:rgba(255,255,255,.9);font-size:18px;font-weight:700;margin-top:4px;">'+dateStr+' • '+timeStr+'</div>'+
+    '</div>'+
+    // Detail tables
+    qrTable + fpTable + grTable + cashTable + expTable +
+    // Summary
+    '<div style="margin-bottom:16px;">'+
+    '<div style="background:#2c1810;color:#fff;padding:14px 18px;border-radius:6px 6px 0 0;font-family:Arial;font-size:24px;font-weight:900;">📊 FINAL SUMMARY</div>'+
+    '<table style="width:100%;border-collapse:collapse;background:#fff;border-radius:0 0 6px 6px;overflow:hidden;">'+
+    summaryRows+
+    '<tr style="background:'+balColor+';color:#fff;">'+
+    '<td style="padding:16px 18px;font-size:24px;font-weight:900;">💰 FINAL BALANCE</td>'+
+    '<td style="padding:16px 18px;font-size:24px;font-weight:900;text-align:right;">'+fmt(t.bal)+'</td>'+
+    '</tr></table></div>'+
+    '<div style="font-size:14px;font-weight:700;color:#b08070;text-align:center;margin-top:14px;">Generated by BIRIYANI 6 POS System v1.2.0</div>'+
+    '</div>';
+
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    toast('❌ Please allow popups to print');
+    return;
+  }
+  printWindow.document.write(`<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Biriyani 6 Report</title>
+<style>
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  body{margin:0;padding:16px;font-family:Arial,sans-serif;background:#fff;}
+  @media print{body{padding:8px;}}
+</style>
+</head><body>${html}</body></html>`);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+  }, 600);
+}
+
+// ─── WhatsApp ────────────────────────────────────────────
+function doWhatsApp() {
+  const t=totals(), d=new Date().toLocaleDateString('en-MY');
+  const msg='🍛 *RESTORAN BIRIYANI 6*\n📅 '+d+'\n\n'+
+    '📱 QR Sales: '+fmt(t.qr)+'\n🐼 FoodPanda: '+fmt(t.fp)+'\n🚗 Grab: '+fmt(t.gr)+'\n'+
+    '💵 Cash Income: '+fmt(t.cash)+'\n💰 Petty Cash: '+fmt(t.pc)+'\n📋 Expenses: '+fmt(t.exp)+'\n\n'+
+    '🧾 Total Sales Bills: '+t.bl+' bills\n'+
+    '✅ *FINAL BALANCE: '+fmt(t.bal)+'*';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ─── Toast ───────────────────────────────────────────────
+function toast(msg) {
+  const el=document.getElementById('toast'); el.textContent=msg;
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+// ─── Service Worker ───────────────────────────────────────
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  // {scope:'./'} works on GitHub Pages subdirectory URLs e.g. /repo-name/
+  navigator.serviceWorker.register('./sw.js', {scope: './'}).catch(() => {});
+}
+
+// ─── Init ────────────────────────────────────────────────
+async function init() {
+  await openDB();
+  await load();
+  buildRows('qr-rows','qr','qr-total','qr-htotal');
+  buildRows('fp-rows','fp','fp-total','fp-htotal');
+  buildRows('gr-rows','gr','gr-total','gr-htotal');
+  renderExp();
+  renderCash();
+  document.getElementById('petty-input').value = S.petty !== undefined ? S.petty : 50;
+  document.getElementById('set-petty-input').value = S.petty !== undefined ? S.petty : 50;
+  refresh();
+  tick();
+  setInterval(tick, 30000);
+  registerSW();
+}
+
+init();
+</script>
+</body>
+</html>
